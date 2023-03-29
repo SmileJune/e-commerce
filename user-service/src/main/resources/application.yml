@@ -5,6 +5,13 @@ spring:
   application:
     name: user-service
 
+  cloud:
+    config:
+      name: ecommerce
+
+  config:
+    import: optional:configserver:http://localhost:8888
+
 eureka:
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
@@ -13,3 +20,12 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://localhost:8761/eureka
+
+logging:
+  level:
+    com.example.userservice: DEBUG
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh, health, beans
