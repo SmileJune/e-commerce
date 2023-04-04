@@ -1,20 +1,29 @@
 package com.example.userservice.controller;
 
+import com.example.userservice.dto.UserDto;
+import com.example.userservice.service.UserService;
+import com.example.userservice.vo.RequestUser;
+import com.example.userservice.vo.ResponseUser;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
+import org.modelmapper.spi.MatchingStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/user-service")
 public class UserController {
 
-    Environment env;
+    private Environment env;
+    private UserService userService;
 
-    UserController(Environment env) {
+    @Autowired
+    UserController(Environment env, UserService userService) {
         this.env = env;
+        this.userService = userService;
     }
 
     @GetMapping("/health_check")
@@ -24,5 +33,18 @@ public class UserController {
             + ", port(server.port)=" + env.getProperty("server.port")
             + ", token secret=" + env.getProperty("token.secret")
             + ", token expiration time=" + env.getProperty("token.expiration_time"));
+    }
+
+    @PostMapping("/users")
+    public ResponseEntity<ResponseUser> createUser(@RequestBody RequestUser user) {
+        ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+
+        UserDto userDto = mapper.map(user, UserDto.class);
+        userService.createUser(userDto);
+
+        ResponseUser responseUser = mapper.map(userDto, ResponseUser.class);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseUser);
     }
 }
