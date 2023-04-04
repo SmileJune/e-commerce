@@ -4,8 +4,25 @@ server:
 spring:
   application:
     name: config-service
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
   cloud:
     config:
       server:
         git:
-          uri: file:///Users/yuniljun/programming/git-local-repo
+          uri: https://github.com/SmileJune/spring-cloud-config.git
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, busrefresh
+
+encrypt:
+  key-store:
+    location: file://${user.home}/programming/e-commerce/keystore/apiEncryption.jks
+    password: test1234
+    alias: apiEncryptionKey
